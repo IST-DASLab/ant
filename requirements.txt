@@ -12,3 +12,5 @@ git+https://github.com/KellerJordan/Muon
 git+https://github.com/gvlassis/pytorch_optimizer # Includes Scion correction for learnable gains
 
 lm_eval # Downstream evals
+matplotlib
+flash-attn
