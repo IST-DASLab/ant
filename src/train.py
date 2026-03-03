@@ -163,6 +163,7 @@ val_iterator = data.utils_data.get_iterator(args.dataset, "val", dataset_device,
 
 if master and args.verbose: print("🧠 Initializing model")
 model_or_ddp, opts = models.utils_models.get_model_opts(args.vocab_size, args.family, args.parametrization, args.zeta, args.scale_type, c_input, c_hidden, c_output, k_input, k_hidden, k_output, args.opt, args.momentum, args.beta2, args.beta3, args.alpha, args.gamma, args.eps, args.weight_decay, args.context, args.test_parametrization and master, args.warning and master, args.backend, model_device, args.comp)
+print(model_or_ddp)
 model = model_or_ddp.module if torch.distributed.is_initialized() else model_or_ddp
 checkpoint_dict["checkpoint"].model = model
 checkpoint_dict["checkpoint"].opts = opts
@@ -176,7 +177,7 @@ if master and args.info:
     # Not having batch dimension can cause problems (e.g. BatchNorm)
     X = batch_X[:1]
     input_data = data.utils_data.transform(args.dataset, X.to(model_device))
-    print(fvcore.nn.flop_count_table(fvcore.nn.FlopCountAnalysis(model, input_data), max_depth=3, show_param_shapes=False))
+    # print(fvcore.nn.flop_count_table(fvcore.nn.FlopCountAnalysis(model, input_data), max_depth=3, show_param_shapes=False))
 
 if master and args.graph:
     import torchview
