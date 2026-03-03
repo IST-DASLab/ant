@@ -555,6 +555,7 @@ def parametrize(model0, model_or_ddp, model_, parametrization, c_input, c_hidden
             # pytorch_optimizer.SCION(output_params, lr=k_output, **shared_kwargs, norm_type=4)
         ]
 
+    # Feb, 2026
     elif opt=="dash":
         from ista_daslab_optimizers import DashConfig, DashInverseRootMethodType, DashGraftingType, DashMatrixScalingType, DashAlgoOneDim, DashEvdHeuristic, DashGpu
         
@@ -599,16 +600,19 @@ def parametrize(model0, model_or_ddp, model_, parametrization, c_input, c_hidden
             cbshv_degree = 60,
         )
 
-        shared_kwargs = {
-            "weight_decay": weight_decay,
-            "config": config,
-        }
-        
+        # shared_kwargs = {
+        #     "weight_decay": weight_decay,
+        #     "config": config,
+        # }
+
         opts = [
-            DashGpu(input_params, lr=k_input, **shared_kwargs),
-            torch.optim.AdamW(vector_params, lr=k_input, betas=(momentum, beta2), eps=eps, weight_decay=weight_decay, fused=True),
-            DashGpu(hidden_params, lr=k_hidden, **shared_kwargs),
-            # DashGpu(output_params, lr=k_output, **shared_kwargs)
+            DashGpu(model.parameters(), lr=k_input, weight_decay=weight_decay, config=config),
         ]
+        # opts = [
+        #     DashGpu(input_params, lr=k_input, **shared_kwargs),
+        #     torch.optim.AdamW(vector_params, lr=k_input, betas=(momentum, beta2), eps=eps, weight_decay=weight_decay, fused=True),
+        #     DashGpu(hidden_params, lr=k_hidden, **shared_kwargs),
+        #     # DashGpu(output_params, lr=k_output, **shared_kwargs)
+        # ]
         
     return opts
