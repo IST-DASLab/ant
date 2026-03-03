@@ -600,19 +600,31 @@ def parametrize(model0, model_or_ddp, model_, parametrization, c_input, c_hidden
             cbshv_degree = 60,
         )
 
-        # shared_kwargs = {
-        #     "weight_decay": weight_decay,
-        #     "config": config,
-        # }
+        shared_kwargs = {
+            "weight_decay": weight_decay,
+            "config": config,
+        }
+
+        from copy import deepcopy
+        scale_config = deepcopy(config)
+        scale_config.block_size = 6 # hardcoded
+
+        input_params = list(model.emb.parameters())
+        vector_params = [parameter for parameter in model.parameters() if (parameter.ndim == 1)]
+        scale_params = [parameter for parameter in model.parameters() if (parameter.ndim == 4)]
+        hidden_params = [parameter for parameter in model.parameters() if parameter.ndim == 2]
+
+        print('-' * 50)
+        print(f'# input params: {len(input_params)}')
+        print(f'# vector params: {len(vector_params)}')
+        print(f'# scale params: {len(scale_params)}')
+        print(f'# hidden params: {len(hidden_params)}')
+        print('-' * 50)
 
         opts = [
-            DashGpu(model.parameters(), lr=k_input, weight_decay=weight_decay, config=config),
+            DashGpu(scale_params, lr=k_input, weight_decay=weight_decay, config=scale_config),
+            DashGpu(vector_params, lr=k_input, **shared_kwargs),
+            DashGpu(input_params + hidden_params, lr=k_input, **shared_kwargs),
         ]
-        # opts = [
-        #     DashGpu(input_params, lr=k_input, **shared_kwargs),
-        #     torch.optim.AdamW(vector_params, lr=k_input, betas=(momentum, beta2), eps=eps, weight_decay=weight_decay, fused=True),
-        #     DashGpu(hidden_params, lr=k_hidden, **shared_kwargs),
-        #     # DashGpu(output_params, lr=k_output, **shared_kwargs)
-        # ]
         
     return opts

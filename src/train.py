@@ -163,10 +163,16 @@ val_iterator = data.utils_data.get_iterator(args.dataset, "val", dataset_device,
 
 if master and args.verbose: print("🧠 Initializing model")
 model_or_ddp, opts = models.utils_models.get_model_opts(args.vocab_size, args.family, args.parametrization, args.zeta, args.scale_type, c_input, c_hidden, c_output, k_input, k_hidden, k_output, args.opt, args.momentum, args.beta2, args.beta3, args.alpha, args.gamma, args.eps, args.weight_decay, args.context, args.test_parametrization and master, args.warning and master, args.backend, model_device, args.comp)
-print(model_or_ddp)
 model = model_or_ddp.module if torch.distributed.is_initialized() else model_or_ddp
 checkpoint_dict["checkpoint"].model = model
 checkpoint_dict["checkpoint"].opts = opts
+
+print('=' * 100)
+print(model_or_ddp)
+print('-' * 100)
+for name, param in model.named_parameters():
+    print(f"{name}: {param.shape}")
+print('=' * 100)
 
 if args.pre_norm: model = models.utils_models.weight_norm(model)
 
